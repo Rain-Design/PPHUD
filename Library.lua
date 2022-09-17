@@ -473,7 +473,9 @@
         BackgroundTransparency = 1,
         Position = UDim2.new(0, 0, 0, 38)
       }, {
-        Utilities:Create("UIListLayout")
+        Utilities:Create("UIListLayout", {
+            SortOrder = Enum.SortOrder.LayoutOrder
+        })
       })
   })
 
@@ -487,13 +489,11 @@
 
   local SectionContainer = Section.Container
 
-  SectionContainer.ChildAdded:Connect(function(v)
-    local Offset = 21
+  SectionContainer.ChildAdded:Connect(function()
     SectionY = SectionY + 21
 
     Section.Size = UDim2.new(0, 286, 0, SectionY)
     SectionContainer.Size = UDim2.new(0, 286, 0, SectionY)
-    --Section.Size = Section.Size + UDim2.fromOffset(0, Section.Size.Y.Offset + Offset)
   end)
 
   function SectionTable:Check(CheckArgs)
