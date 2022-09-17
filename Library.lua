@@ -410,7 +410,6 @@
   task.spawn(function()
       for _, v in pairs(Containers:GetChildren()) do
         if v.Name == "ContainerHolder" then
-            warn(v)
             if v.Left ~= Left then
                 v.Left.Visible = false
                 v.Right.Visible = false
@@ -442,8 +441,6 @@
 
   local SectionTable = {}
   
-
-  warn(Left.Size.Y)
   local Section = Utilities:Create("Frame", {
       Name = "Section",
       Parent = SectionArgs.Side == "Left" and Left or Right,
