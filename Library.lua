@@ -1,4 +1,4 @@
-local library = {
+  local library = {
     flags = {}
   }
   library.Flags = library.flags
@@ -590,6 +590,79 @@ local library = {
   end)
 
   return CheckTable
+  end
+
+  function SectionTable:Button(Info)
+  Info.Text = Info.Text or "Button"
+  Info.Callback = Info.Callback or function() end
+
+  local Button = Utilities:Create("Frame", {
+    Name = "Button",
+    Parent = SectionContainer,
+    Size = UDim2.new(0, 286, 0, 21),
+    BackgroundTransparency = 1
+  }, {
+    Utilities:Create("Frame", {
+        Name = "ButtonFrame",
+        BackgroundColor3 = Colors.Secondary,
+        Size = UDim2.new(0, 14, 0, 14)
+    }, {
+        Utilities:Create("UIStroke", {
+            Color = Colors.Divider
+        }),
+        Utilities:Create("TextLabel", {
+            Name = "ButtonText",
+            Size = UDim2.new(1, 0, 1, 0),
+            Text = Info.Text,
+            Font = Enum.Font.SourceSansBold,
+            BackgroundTransparency = 1,
+            TextSize = 13,
+            TextColor3 = Colors.PrimaryText
+        }),
+        Utilities:Create("TextButton", {
+            Name = "ButtonButton",
+            Size = UDim2.new(1, 0, 1, 0),
+            BackgroundTransparency = 1
+        })
+    })
+  })
+
+  local Hovering = false
+
+  Button.ButtonFrame.MouseEnter:Connect(function()
+    Hovering = true
+    Utilities:Tween(Button.ButtonFrame, .125, {BackgroundColor3 = Colors.Hovering})
+    Utilities:Tween(Button.ButtonFrame.UIStroke, .125, {Color = Colors.AccentDivider})
+  end)
+
+  Button.ButtonFrame.MouseLeave:Connect(function()
+    Hovering = false
+    Utilities:Tween(Button.ButtonFrame, .125, {BackgroundColor3 = Colors.Secondary})
+    Utilities:Tween(Button.ButtonFrame.UIStroke, .125, {Color = Colors.Divider})
+  end)
+
+  local TextX = math.clamp(Button.ButtonFrame.ButtonText.TextBounds.X, 15, 1000)
+
+  Button.ButtonFrame.Size = UDim2.new(0, TextX + 10, 0, 14)
+
+  Button.ButtonFrame.ButtonButton.MouseButton1Down:Connect(function()
+    Utilities:Tween(Button.ButtonFrame.UIStroke, .1, {Color = Colors.Accent})
+    Utilities:Tween(Button.ButtonFrame.ButtonText, .1, {TextColor3 = Colors.AccentText})
+  end)
+
+  Button.ButtonFrame.ButtonButton.MouseButton1Up:Connect(function()
+    Utilities:Tween(Button.ButtonFrame.ButtonText, .1, {TextColor3 = Colors.PrimaryText})
+    if Hovering then
+        Utilities:Tween(Button.ButtonFrame.UIStroke, .125, {Color = Colors.AccentDivider})
+        else
+        Utilities:Tween(Button.ButtonFrame.UIStroke, .125, {Color = Colors.Divider})
+    end
+  end)
+
+  Button.ButtonFrame.ButtonButton.MouseButton1Click:Connect(function()
+    task.spawn(Info.Callback)
+  end)
+  
   end
 
   function SectionTable:Slider(Info)
