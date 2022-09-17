@@ -703,7 +703,7 @@
         }),
         Utilities:Create("TextLabel", {
             Name = "SliderValueText",
-            Text = tostring(Info.Default),
+            Text = tostring(Info.Default)..Info.Postfix,
             TextSize = 13,
             Font = Enum.Font.SourceSansBold,
             Size = UDim2.new(1, 0, 0, 14),
