@@ -69,11 +69,18 @@ local library = {
 	return Px/Max, Py/May
   end
 
+  function Utilities:GetMouse()
+	return Vector2.new(UserInputService:GetMouseLocation().X + 1, UserInputService:GetMouseLocation().Y - 35)
+  end
+
   if not isfolder("PPHUD") then
     makefolder("PPHUD")
 
     local Arrow = request({Url = "https://raw.githubusercontent.com/Rain-Design/PPHUD/main/Dropdown.png", Method = "GET"})
     writefile("PPHUD/Arrow.png", Arrow.Body)
+
+    local Resize = request({Url = "https://raw.githubusercontent.com/Rain-Design/PPHUD/main/resize.png", Method = "GET"})
+    writefile("PPHUD/Resize.png", Resize.Body)
   end
   --//
   
@@ -114,8 +121,8 @@ local library = {
           Name = "Main",
           Size = UDim2.new(0, 600, 0, 400),
           BackgroundColor3 = Color3.fromRGB(255, 255, 255), -- Colors.Primary
-          AnchorPoint = Vector2.new(.5, .5),
-          Position = UDim2.new(0, (ViewportSize.X / 2), 0, (ViewportSize.Y / 2))
+          ClipsDescendants = true,
+          Position = UDim2.new(0, 600, 0, 270)
       }, {
           Utilities:Create("UIGradient", {
               Color = ColorSequence.new({
@@ -127,28 +134,42 @@ local library = {
           }),
           Utilities:Create("Frame", {
               Name = "Containers",
-              Size = UDim2.new(0, 600, 0, 350),
+              Size = UDim2.new(1, 0, 1, -50),
               BackgroundTransparency = 1,
               Position = UDim2.new(0, 0, 0, 26)
           }),
           Utilities:Create("Frame", {
               Name = "Bottom",
-              Size = UDim2.new(0, 600, 0, 24),
+              Size = UDim2.new(1, 0, 0, 24),
               AnchorPoint = Vector2.new(.5, 1),
               Position = UDim2.new(.5, 0, 1, 0),
               BackgroundColor3 = Colors.Secondary
           }, {
               Utilities:Create("Frame", {
                   Name = "Divider",
-                  Size = UDim2.new(0, 600, 0, 1),
+                  Size = UDim2.new(1, 0, 0, 1),
                   AnchorPoint = Vector2.new(.5, 0),
                   BackgroundColor3 = Colors.Divider,
                   Position = UDim2.new(.5, 0, 0, 0)
               }),
+              Utilities:Create("ImageLabel", {
+                Name = "ResizeIcon",
+                Size = UDim2.new(0, 10, 0, 10),
+                BackgroundTransparency = 1,
+                Image = getcustomasset("PPHUD/Resize.png"),
+                AnchorPoint = Vector2.new(1, 1),
+                Position = UDim2.new(1, 0, 1, 0)
+              }, {
+                Utilities:Create("TextButton", {
+                    Name = "ResizeButton",
+                    Size = UDim2.new(0, 10, 0, 10),
+                    BackgroundTransparency = 1
+                })
+              }),
               Utilities:Create("TextLabel", {
                   Name = "BottomText",
                   Text = WindowArgs.Text,
-                  Size = UDim2.new(0, 590, 0, 24),
+                  Size = UDim2.new(1, -10, 0, 24),
                   BackgroundTransparency = 1,
                   Position = UDim2.new(0, 8, 0, 0),
                   TextXAlignment = Enum.TextXAlignment.Left,
@@ -162,11 +183,11 @@ local library = {
               AnchorPoint = Vector2.new(.5, 0),
               Position = UDim2.new(.5, 0, 0, 0),
               BackgroundColor3 = Colors.Secondary,
-              Size = UDim2.new(0, 600, 0, 26)
+              Size = UDim2.new(1, 0, 0, 26)
           }, {
               Utilities:Create("Frame", {
                   Name = "Divider",
-                  Size = UDim2.new(0, 600, 0, 1),
+                  Size = UDim2.new(1, 0, 0, 1),
                   BackgroundColor3 = Colors.Divider,
                   AnchorPoint = Vector2.new(0.5, 1),
                   ZIndex = 2,
@@ -174,7 +195,7 @@ local library = {
               }),
               Utilities:Create("Frame", {
                   Name = "TabContainer",
-                  Size = UDim2.new(0, 600, 0, 26),
+                  Size = UDim2.new(1, 0, 0, 26),
                   BackgroundTransparency = 1,
                   ClipsDescendants = true
               }, {
@@ -185,23 +206,71 @@ local library = {
           })
       })
   })
-  
+
+  local ResizeButton = Window.Main.Bottom.ResizeIcon.ResizeButton
   local TabContainer = Window.Main.Topbar.TabContainer
   local Containers = Window.Main.Containers
+
+  local SizeX = Instance.new("NumberValue", Window.Main)
+  SizeX.Name = "X"
+
+  local SizeY = Instance.new("NumberValue", Window.Main)
+  SizeY.Name = "Y"
+
+  local function Resize()
+    local MouseLocation = Utilities:GetMouse()
+    local X = math.clamp(MouseLocation.X - Window.Main.AbsolutePosition.X, 300, 1300)
+    local Y = math.clamp(MouseLocation.Y - Window.Main.AbsolutePosition.Y, 165, 730)
+    
+    SizeX.Value = X
+    SizeY.Value = Y
+
+    Utilities:Tween(Window.Main, .05, {Size = UDim2.new(0, X, 0, Y)})
+
+    local TabSize = 1 / self.Tabs
+    
+    task.spawn(function()
+      for _, v in pairs(TabContainer:GetChildren()) do
+          if v.ClassName == "Frame" then
+              v.Size = UDim2.new(TabSize, 0, 0, 26)
+          end
+      end
+    end)
+
+  end
+
+  ResizeButton.MouseButton1Down:Connect(function()
+  local ResizeMove, ResizeKill
   
-  local TabSize = TabContainer.Size.X.Offset
+  Utilities:Tween(Window.Main.Bottom.ResizeIcon, .125, {ImageColor3 = Colors.Accent})
+
+  ResizeMove = Mouse.Move:Connect(function()
+    Resize()
+  end)
+
+  ResizeKill = UserInputService.InputEnded:Connect(function(UserInput)
+    if UserInput.UserInputType == Enum.UserInputType.MouseButton1 then
+        ResizeMove:Disconnect()
+        ResizeKill:Disconnect()
+
+        Utilities:Tween(Window.Main.Bottom.ResizeIcon, .125, {ImageColor3 = Color3.fromRGB(255, 255, 255)})
+    end
+  end)
   
+    --TweenService:Create(Window.Mai, TweenInfo.new(0.09, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {Size = UDim2.new(Scale,0,0,14)}):Play()
+  end)
+
   TabContainer.ChildAdded:Connect(function()
       self.Tabs = self.Tabs + 1
   
-      local Size = TabSize / self.Tabs + 1
+      local Size = 1 / self.Tabs
 
       for _, v in pairs(TabContainer:GetChildren()) do
           if v.ClassName == "Frame" then
-              v.Size = UDim2.new(0, Size, 0, 26)
+              v.Size = UDim2.new(Size, 0, 0, 26)
           end
       end
-  end) 
+  end)
 
   local dragging = false
   local dragInput, mousePos, framePos
@@ -249,6 +318,7 @@ local library = {
   local Tab = Utilities:Create("Frame", {
       Name = "Tab",
       Parent = TabContainer,
+      Size = UDim2.new(0, 200, 0, 26),
       BackgroundTransparency = 1,
   }, {
       Utilities:Create("Frame", {
@@ -284,7 +354,7 @@ local library = {
       AutomaticCanvasSize = Enum.AutomaticSize.Y,
       ScrollBarThickness = 0,
       Parent = Containers,
-      Size = UDim2.new(0, 300, 0, 350)
+      Size = UDim2.new(.5, 0, 0, 350)
       }, {
           Utilities:Create("UIListLayout"),
           Utilities:Create("UIPadding", {
@@ -301,7 +371,7 @@ local library = {
       AutomaticCanvasSize = Enum.AutomaticSize.Y,
       ScrollBarThickness = 0,
       Parent = Containers,
-      Size = UDim2.new(0, 300, 0, 350),
+      Size = UDim2.new(.5, 0, 0, 350),
       Position = UDim2.new(0, 300, 0, 0)
       }, {
           Utilities:Create("UIListLayout"),
@@ -358,12 +428,14 @@ local library = {
 
   local SectionTable = {}
   
+
+  warn(Left.Size.Y)
   local Section = Utilities:Create("Frame", {
       Name = "Section",
       Parent = SectionArgs.Side == "Left" and Left or Right,
       BackgroundColor3 = Color3.fromRGB(167, 54, 54),
       BackgroundTransparency = 1,
-      Size = UDim2.new(0, 286, 0, 36)
+      Size = UDim2.new(0, 286, 0, 36) -- +64
   }, {
       Utilities:Create("TextLabel", {
           Name = "SectionText",
@@ -383,7 +455,7 @@ local library = {
       }),
       Utilities:Create("Frame", {
         Name = "Container",
-        Size = UDim2.new(0, 0, 0, 0),
+        Size = UDim2.new(0, 286, 0, 0),
         BackgroundTransparency = 1,
         Position = UDim2.new(0, 0, 0, 38)
       }, {
@@ -391,13 +463,23 @@ local library = {
       })
   })
 
+  local SectionY = 36
+
+  SizeX:GetPropertyChangedSignal("Value"):Connect(function()
+    local Size = SizeX.Value / 2 - 14
+    Section.Size = UDim2.new(0, Size, 0, SectionY)
+    Section.Divider.Size = UDim2.new(0, Size, 0, 1)
+  end)
+
   local SectionContainer = Section.Container
 
   SectionContainer.ChildAdded:Connect(function(v)
     local Offset = 21
+    SectionY = SectionY + 21
 
-    SectionContainer.Size = UDim2.fromOffset(0, SectionContainer.Size.Y.Offset + Offset)
-    Section.Size = UDim2.fromOffset(0, Section.Size.Y.Offset + Offset)
+    Section.Size = UDim2.new(0, 286, 0, SectionY)
+    SectionContainer.Size = UDim2.new(0, 286, 0, SectionY)
+    --Section.Size = Section.Size + UDim2.fromOffset(0, Section.Size.Y.Offset + Offset)
   end)
 
   function SectionTable:Check(CheckArgs)
@@ -522,7 +604,7 @@ local library = {
     Utilities:Create("Frame", {
         Name = "SliderOuter",
         BackgroundColor3 = Colors.Secondary,
-        Size = UDim2.new(0, 175, 0, 14)
+        Size = UDim2.new(.6, 3, 0, 14)
     }, {
         Utilities:Create("UIStroke", {
             Color = Colors.AccentDivider
@@ -553,12 +635,17 @@ local library = {
             Font = Enum.Font.SourceSansBold,
             Size = UDim2.new(0, 14, 0, 14),
             TextXAlignment = Enum.TextXAlignment.Left,
-            Position = UDim2.new(0, 181, 0, 0),
+            Position = UDim2.new(1, 6, 0, 0),
             TextColor3 = Colors.PrimaryText,
             BackgroundTransparency = 1
         })
     })
   })
+
+  SizeX:GetPropertyChangedSignal("Value"):Connect(function()
+    local Size = SizeX.Value / 2 - 14
+    Slider.Size = UDim2.new(0, Size, 0, 21)
+  end)
 
   Slider.SliderOuter.MouseEnter:Connect(function()
     Utilities:Tween(Slider.SliderOuter.UIStroke, .125, {Color = Colors.Tertiary})
@@ -668,7 +755,7 @@ end)
     }, {
         Utilities:Create("Frame", {
             Name = "DropdownFrame",
-            Size = UDim2.new(0, 175, 0, 14),
+            Size = UDim2.new(.6, 3, 0, 14),
             BackgroundColor3 = Colors.Secondary,
             ZIndex = 2
         }, {
@@ -679,7 +766,7 @@ end)
                 Name = "DropdownText",
                 BackgroundTransparency = 1,
                 Text = Info.Text,
-                Size = UDim2.new(0, 175, 0, 14),
+                Size = UDim2.new(1, 0, 0, 14),
                 TextXAlignment = Enum.TextXAlignment.Left,
                 Position = UDim2.new(0, 4, 0, 0),
                 TextSize = 13,
@@ -690,12 +777,12 @@ end)
             Utilities:Create("TextButton", {
                 Name = "DropdownButton",
                 BackgroundTransparency = 1,
-                Size = UDim2.new(0, 175, 0, 14),
+                Size = UDim2.new(1, 0, 0, 14),
                 ZIndex = 2
             }),
             Utilities:Create("Frame", {
                 Name = "DropdownContainer",
-                Size = UDim2.new(0, 175, 0, 0),
+                Size = UDim2.new(1, 0, 0, 0),
                 BackgroundTransparency = 1,
                 ClipsDescendants = true,
                 Position = UDim2.new(0, 0, 0, 14),
@@ -727,6 +814,11 @@ end)
         })
     })
 
+    SizeX:GetPropertyChangedSignal("Value"):Connect(function()
+        local Size = SizeX.Value / 2 - 14
+        Dropdown.Size = UDim2.new(0, Size, 0, 21)
+      end)
+
     Dropdown.DropdownFrame.MouseEnter:Connect(function()
         if not State then
             Utilities:Tween(Dropdown.DropdownFrame, .125, {BackgroundColor3 = Colors.Hovering})
@@ -747,12 +839,12 @@ end)
 
         if State then
             Utilities:Tween(Dropdown.DropdownFrame, .2, {BackgroundColor3 = Colors.Secondary})
-            DropdownContainer.Size = UDim2.new(0, 175, 0, DropdownY)
-            Dropdown.DropdownFrame.Size = UDim2.new(0, 175, 0, Dropdown.DropdownFrame.Size.Y.Offset + DropdownY)
+            DropdownContainer.Size = DropdownContainer.Size + UDim2.fromOffset(0, DropdownY)
+            Dropdown.DropdownFrame.Size = Dropdown.DropdownFrame.Size + UDim2.fromOffset(0, DropdownY)
             DropdownImage.Rotation = 90
         else
-            DropdownContainer.Size = UDim2.new(0, 175, 0, 0)
-            Dropdown.DropdownFrame.Size = UDim2.new(0, 175, 0, Dropdown.DropdownFrame.Size.Y.Offset - DropdownY)
+            DropdownContainer.Size = DropdownContainer.Size - UDim2.fromOffset(0, DropdownY)
+            Dropdown.DropdownFrame.Size = Dropdown.DropdownFrame.Size - UDim2.fromOffset(0, DropdownY)
             DropdownImage.Rotation = 0
         end
     end
@@ -772,7 +864,7 @@ end)
 
         local DropdownElement = Utilities:Create("Frame", {
             Name = "DropdownElement",
-            Size = UDim2.new(0, 175, 0, 14),
+            Size = UDim2.new(1, 0, 0, 14),
             Parent = DropdownContainer,
             BackgroundTransparency = 1,
             ZIndex = 3
