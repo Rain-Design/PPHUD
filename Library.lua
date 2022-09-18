@@ -114,7 +114,6 @@
   
   local Window = Utilities:Create("ScreenGui", {
       Name = "PPHUD",
-      Parent = CoreGui,
       ZIndexBehavior = Enum.ZIndexBehavior.Global
   }, {
       Utilities:Create("Frame", {
@@ -206,6 +205,15 @@
           })
       })
   })
+
+  if syn.protect_gui then
+    syn.protect_gui(Window)
+    Window.Parent = CoreGui
+  elseif gethui then
+    Window.Parent = gethui()
+  else
+    Window.Parent = CoreGui
+  end
 
   local ResizeButton = Window.Main.Bottom.ResizeIcon.ResizeButton
   local TabContainer = Window.Main.Topbar.TabContainer
