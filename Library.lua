@@ -142,14 +142,16 @@
               Size = UDim2.new(1, 0, 0, 24),
               AnchorPoint = Vector2.new(.5, 1),
               Position = UDim2.new(.5, 0, 1, 0),
-              BackgroundColor3 = Colors.Secondary
+              BackgroundColor3 = Colors.Secondary,
+              ZIndex = 4
           }, {
               Utilities:Create("Frame", {
                   Name = "Divider",
                   Size = UDim2.new(1, 0, 0, 1),
                   AnchorPoint = Vector2.new(.5, 0),
                   BackgroundColor3 = Colors.Divider,
-                  Position = UDim2.new(.5, 0, 0, 0)
+                  Position = UDim2.new(.5, 0, 0, 0),
+                  ZIndex = 4
               }),
               Utilities:Create("ImageLabel", {
                 Name = "ResizeIcon",
@@ -157,12 +159,14 @@
                 BackgroundTransparency = 1,
                 Image = getcustomasset("PPHUD/Resize.png"),
                 AnchorPoint = Vector2.new(1, 1),
-                Position = UDim2.new(1, 0, 1, 0)
+                Position = UDim2.new(1, 0, 1, 0),
+                ZIndex = 4
               }, {
                 Utilities:Create("TextButton", {
                     Name = "ResizeButton",
                     Size = UDim2.new(0, 10, 0, 10),
-                    BackgroundTransparency = 1
+                    BackgroundTransparency = 1,
+                    ZIndex = 4
                 })
               }),
               Utilities:Create("TextLabel", {
@@ -174,7 +178,8 @@
                   TextXAlignment = Enum.TextXAlignment.Left,
                   TextSize = 13,
                   Font = Enum.Font.SourceSansBold,
-                  TextColor3 = Colors.PrimaryText
+                  TextColor3 = Colors.PrimaryText,
+                  ZIndex = 4
               })
           }),
           Utilities:Create("Frame", {
@@ -341,7 +346,8 @@
           Text = TabArgs.Text,
           Font = Enum.Font.SourceSansBold,
           TextColor3 = Colors.SecondaryText,
-          TextSize = 14
+          TextSize = 14,
+          ZIndex = 2
       }),
       Utilities:Create("TextButton", {
           Name = "TabButton",
@@ -370,6 +376,7 @@
       BackgroundColor3 = Color3.fromRGB(167, 54, 54),
       CanvasSize = UDim2.new(0, 0, 0, 0),
       AutomaticCanvasSize = Enum.AutomaticSize.Y,
+      ClipsDescendants = false,
       ScrollBarThickness = 0,
       Parent = ContainerHolder,
       Size = UDim2.new(.5, 0, 0, 350)
@@ -387,6 +394,7 @@
       BackgroundColor3 = Color3.fromRGB(45, 175, 62),
       CanvasSize = UDim2.new(0, 0, 0, 0),
       AutomaticCanvasSize = Enum.AutomaticSize.Y,
+      ClipsDescendants = false,
       ScrollBarThickness = 0,
       Parent = ContainerHolder,
       Size = UDim2.new(.5, 0, 0, 350),
@@ -464,7 +472,8 @@
           TextSize = 14,
           BackgroundTransparency = 1,
           TextColor3 = Colors.PrimaryText,
-          Font = Enum.Font.SourceSansBold
+          Font = Enum.Font.SourceSansBold,
+          ZIndex = 2
       }),
       Utilities:Create("Frame", {
           Name = "Divider",
@@ -725,7 +734,7 @@
             Text = Info.Text,
             TextSize = 13,
             Font = Enum.Font.SourceSansBold,
-            Size = UDim2.new(0, 14, 0, 14),
+            Size = UDim2.new(1, 0, 0, 14),
             TextXAlignment = Enum.TextXAlignment.Left,
             Position = UDim2.new(1, 6, 0, 0),
             TextColor3 = Colors.PrimaryText,
