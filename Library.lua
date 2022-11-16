@@ -21,6 +21,8 @@
   local isfolder = isfolder or syn_isfolder or is_folder
   local makefolder = makefolder or make_folder or createfolder or create_folder
   --//
+
+  local DropIndex = 9999
   
   function Utilities:Create(Inst, Properties, Childs)
   local Instance = Instance.new(Inst)
@@ -768,10 +770,10 @@
   end)
 
   local MinSize = 0
-local MaxSize = 1
+    local MaxSize = 1
 
-local SizeFromScale = (MinSize +  (MaxSize - MinSize)) * DefaultScale
-SizeFromScale = SizeFromScale - (SizeFromScale % 2)
+    local SizeFromScale = (MinSize +  (MaxSize - MinSize)) * DefaultScale
+    SizeFromScale = SizeFromScale - (SizeFromScale % 2)
 
 local function HandleSlider()
     local Px = Utilities:GetXY(Slider.SliderOuter)
@@ -839,6 +841,7 @@ end)
   function SectionTable:Dropdown(Info)
     Info.Text = Info.Text or "Dropdown"
     Info.Flag = Info.Flag or nil
+    Info.Multi = Info.Multi or false
     Info.Default = Info.Default or nil
     Info.List = Info.List or {}
     Info.ChangeText = Info.ChangeText or true
@@ -858,7 +861,7 @@ end)
             Name = "DropdownFrame",
             Size = UDim2.new(.6, 3, 0, 14),
             BackgroundColor3 = Colors.Secondary,
-            ZIndex = 2
+            ZIndex = DropIndex
         }, {
             Utilities:Create("UIStroke", {
                 Color = Colors.AccentDivider
@@ -873,13 +876,13 @@ end)
                 TextSize = 13,
                 TextColor3 = Colors.TertiaryText,
                 Font = Enum.Font.SourceSansBold,
-                ZIndex = 2
+                ZIndex = DropIndex
             }),
             Utilities:Create("TextButton", {
                 Name = "DropdownButton",
                 BackgroundTransparency = 1,
                 Size = UDim2.new(1, 0, 0, 14),
-                ZIndex = 2
+                ZIndex = DropIndex
             }),
             Utilities:Create("Frame", {
                 Name = "DropdownContainer",
@@ -887,7 +890,7 @@ end)
                 BackgroundTransparency = 1,
                 ClipsDescendants = true,
                 Position = UDim2.new(0, 0, 0, 14),
-                ZIndex = 2
+                ZIndex = DropIndex
             }, {
                 Utilities:Create("UIListLayout")
             }),
@@ -896,7 +899,7 @@ end)
                 Size = UDim2.new(0, 21, 0, 14),
                 BackgroundColor3 = Colors.Tertiary,
                 Position = UDim2.new(1, -21, 0, 0),
-                ZIndex = 2
+                ZIndex = DropIndex
             }, {
                 Utilities:Create("UIStroke", {
                     Color = Colors.AccentDivider
@@ -909,7 +912,7 @@ end)
                     Image = getcustomasset("PPHUD/Arrow.png"),
                     AnchorPoint = Vector2.new(.5, .5),
                     Position = UDim2.new(.5, 0, .5, 0),
-                    ZIndex = 2
+                    ZIndex = DropIndex
                 })
             })
         })
@@ -960,6 +963,30 @@ end)
         end
     end
 
+    local MultiTable = {}
+
+    local function OnPick(v)
+        if Info.Multi then
+            if not table.find(MultiTable, v.DropdownElementText.Text) then
+                Utilities:Tween(v, .125, {BackgroundTransparency = .95})
+                Utilities:Tween(v.DropdownElementText, .125, {TextColor3 = Colors.Accent})
+                table.insert(MultiTable, v.DropdownElementText.Text)
+            else
+                Utilities:Tween(v, .125, {BackgroundTransparency = 1})
+                Utilities:Tween(v.DropdownElementText, .125, {TextColor3 = Colors.PrimaryText})
+                for i, e in pairs(MultiTable) do
+                    if v.DropdownElementText.Text == e then
+                        table.remove(MultiTable, i)
+                    end
+                end
+            end
+            task.spawn(Info.Callback, MultiTable)
+        else
+            task.spawn(Info.Callback, v.DropdownElementText.Text)
+            DropdownTable:Toggle(false)
+        end
+    end
+
     function DropdownTable:Add(str)
         DropdownY = DropdownY + 14
 
@@ -968,7 +995,7 @@ end)
             Size = UDim2.new(1, 0, 0, 14),
             Parent = DropdownContainer,
             BackgroundTransparency = 1,
-            ZIndex = 3
+            ZIndex = DropIndex
         }, {
             Utilities:Create("TextLabel", {
                 Name = "DropdownElementText",
@@ -978,36 +1005,32 @@ end)
                 BackgroundTransparency = 1,
                 TextColor3 = Colors.PrimaryText,
                 Font = Enum.Font.SourceSansBold,
-                ZIndex = 3
+                ZIndex = DropIndex
             }),
             Utilities:Create("TextButton", {
                 Name = "DropdownElementButton",
                 Size = UDim2.new(1, 0, 1, 0),
                 BackgroundTransparency = 1,
-                ZIndex = 3
+                ZIndex = DropIndex
             })
         })
 
         DropdownElement.MouseEnter:Connect(function()
-            Utilities:Tween(DropdownElement, .125, {BackgroundTransparency = .95})
-            Utilities:Tween(DropdownElement.DropdownElementText, .125, {TextColor3 = Colors.Accent})
+            if not table.find(MultiTable, DropdownElement.DropdownElementText.Text) then
+                Utilities:Tween(DropdownElement, .125, {BackgroundTransparency = .95})
+                Utilities:Tween(DropdownElement.DropdownElementText, .125, {TextColor3 = Colors.Accent})
+            end
         end)
 
         DropdownElement.MouseLeave:Connect(function()
-            Utilities:Tween(DropdownElement, .125, {BackgroundTransparency = 1})
-            Utilities:Tween(DropdownElement.DropdownElementText, .125, {TextColor3 = Colors.PrimaryText})
+            if not table.find(MultiTable, DropdownElement.DropdownElementText.Text) then
+                Utilities:Tween(DropdownElement, .125, {BackgroundTransparency = 1})
+                Utilities:Tween(DropdownElement.DropdownElementText, .125, {TextColor3 = Colors.PrimaryText})
+            end
         end)
 
         DropdownElement.DropdownElementButton.MouseButton1Click:Connect(function()
-            DropdownTable:Toggle(false)
-
-            task.spawn(Info.Callback, DropdownElement.DropdownElementText.Text)
-            if Info.Flag then
-                library[Info.Flag] = DropdownElement.DropdownElementText.Text
-            end
-            if Info.ChangeText then
-                Dropdown.DropdownFrame.DropdownText.Text = DropdownElement.DropdownElementText.Text
-            end
+            OnPick(DropdownElement)
         end)
     end
 
@@ -1021,6 +1044,9 @@ end)
         DropdownTable:Toggle(State)
     end)
 
+    DropIndex = DropIndex - 1
+
+    return DropdownTable
   end
 
   return SectionTable
