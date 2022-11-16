@@ -145,7 +145,7 @@
               AnchorPoint = Vector2.new(.5, 1),
               Position = UDim2.new(.5, 0, 1, 0),
               BackgroundColor3 = Colors.Secondary,
-              ZIndex = 4
+              ZIndex = DropIndex + 5
           }, {
               Utilities:Create("Frame", {
                   Name = "Divider",
@@ -153,7 +153,7 @@
                   AnchorPoint = Vector2.new(.5, 0),
                   BackgroundColor3 = Colors.Divider,
                   Position = UDim2.new(.5, 0, 0, 0),
-                  ZIndex = 4
+                  ZIndex = DropIndex + 5
               }),
               Utilities:Create("ImageLabel", {
                 Name = "ResizeIcon",
@@ -162,13 +162,13 @@
                 Image = getcustomasset("PPHUD/Resize.png"),
                 AnchorPoint = Vector2.new(1, 1),
                 Position = UDim2.new(1, 0, 1, 0),
-                ZIndex = 4
+                ZIndex = DropIndex + 5
               }, {
                 Utilities:Create("TextButton", {
                     Name = "ResizeButton",
                     Size = UDim2.new(0, 10, 0, 10),
                     BackgroundTransparency = 1,
-                    ZIndex = 4
+                    ZIndex = DropIndex + 5
                 })
               }),
               Utilities:Create("TextLabel", {
@@ -181,7 +181,7 @@
                   TextSize = 13,
                   Font = Enum.Font.SourceSansBold,
                   TextColor3 = Colors.PrimaryText,
-                  ZIndex = 4
+                  ZIndex = DropIndex + 5
               })
           }),
           Utilities:Create("Frame", {
