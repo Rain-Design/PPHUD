@@ -51,6 +51,12 @@
   
   return Instance
   end
+
+  function Utilities:Round(Number, Increment)
+    Increment = 1 / Increment
+
+    return math.round(Number * Increment) / Increment
+end
   
   function Utilities:Tween(Inst, Speed, Properties, Style, Direction)
   local Instance = Inst or error("#1 argument: instance expected.")
@@ -687,16 +693,31 @@
   Info.Default = Info.Default or 10
   Info.Minimum = Info.Minimum or 5
   Info.Maximum = Info.Maximum or 20
+  Info.Incrementation = Info.Incrementation or 1
   Info.Postfix = Info.Postfix or ""
   Info.Callback = Info.Callback or function() end
 
   if Info.Minimum > Info.Maximum then
-  local ValueBefore = Info.Minimum
-  Info.Minimum, Info.Maximum = Info.Maximum, ValueBefore
-  end
-    
-  Info.Default = math.clamp(Info.Default, Info.Minimum, Info.Maximum)
-  local DefaultScale = (Info.Default - Info.Minimum) / (Info.Maximum - Info.Minimum)
+    local ValueBefore = Info.Minimum
+    Info.Minimum, Info.Maximum = Info.Maximum, ValueBefore
+    end
+
+    local DefaultValue = math.clamp(Info.Default, Info.Minimum, Info.Maximum)
+    local Rounded = Utilities:Round(DefaultValue, Info.Incrementation)
+
+    local DefaultScale = (Rounded - Info.Minimum) / (Info.Maximum - Info.Minimum)
+
+    local StepFormat = "%d"
+    local Step = Info.Incrementation
+
+    for i = 1, 10 do
+        if Step == 1 then break end
+        
+        StepFormat = '%.' .. i .. 'f'
+        if StepFormat:format(Step) == tostring(Step) then
+            break
+        end
+    end
 
   local Slider = Utilities:Create("Frame", {
     Name = "Slider",
@@ -715,11 +736,11 @@
         Utilities:Create("Frame", {
             Name = "SliderInner",
             BackgroundColor3 = Colors.DarkerAccent,
-            Size = UDim2.new(DefaultScale, 0, 0, 14)
+            Size = UDim2.fromScale(DefaultScale, 1)
         }),
         Utilities:Create("TextLabel", {
             Name = "SliderValueText",
-            Text = tostring(Info.Default)..Info.Postfix,
+            Text = StepFormat:format(Rounded)..Info.Postfix,
             TextSize = 13,
             Font = Enum.Font.SourceSansBold,
             Size = UDim2.new(1, 0, 0, 14),
@@ -775,32 +796,28 @@
     local SizeFromScale = (MinSize +  (MaxSize - MinSize)) * DefaultScale
     SizeFromScale = SizeFromScale - (SizeFromScale % 2)
 
-local function HandleSlider()
-    local Px = Utilities:GetXY(Slider.SliderOuter)
-    SizeFromScale = (MinSize +  (MaxSize - MinSize)) * Px
-    local Value = math.floor(Info.Minimum + ((Info.Maximum - Info.Minimum) * Px))
-    SizeFromScale = SizeFromScale - (SizeFromScale % 2)
-    TweenService:Create(Slider.SliderOuter.SliderInner, TweenInfo.new(0.09, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {Size = UDim2.new(Px,0,0,14)}):Play()
-    if Info.Flag then
-        library.Flags[Info.Flag] = Value
-    end
-    Slider.SliderOuter.SliderValueText.Text = tostring(Value)..Info.Postfix
-    task.spawn(Info.Callback, Value)
-end
-
-Slider.SliderOuter.SliderButton.MouseButton1Down:Connect(function()
-	local MouseMove, MouseKill
-    HandleSlider()
-	MouseMove = Mouse.Move:Connect(function()
-		HandleSlider()
-	end)
-	MouseKill = UserInputService.InputEnded:Connect(function(UserInput)
-		if UserInput.UserInputType == Enum.UserInputType.MouseButton1 then
-			MouseMove:Disconnect()
-			MouseKill:Disconnect()
-		end
-	end)
-end)
+    Slider.SliderOuter.SliderButton.MouseButton1Down:Connect(function()
+        local MouseMove, MouseKill
+        MouseMove = Mouse.Move:Connect(function()
+            local Px = Utilities:GetXY(Slider.SliderOuter)
+            local ScaledValue = Px * (Info.Maximum - Info.Minimum) + Info.Minimum
+            local RoundedValue = Utilities:Round(ScaledValue, Info.Incrementation)
+            local FinalValue = math.clamp(RoundedValue, Info.Minimum, Info.Maximum)
+            local SizeX = (FinalValue - Info.Minimum) / (Info.Maximum - Info.Minimum)
+            Utilities:Tween(Slider.SliderOuter.SliderInner, 0.09, {Size = UDim2.new(SizeX,0,1,0)})
+            if Info.Flag then
+                library.Flags[Info.Flag] = FinalValue
+            end
+            Slider.SliderOuter.SliderValueText.Text = StepFormat:format(FinalValue)..Info.Postfix
+            task.spawn(Info.Callback, FinalValue)
+        end)
+        MouseKill = UserInputService.InputEnded:Connect(function(UserInput)
+            if UserInput.UserInputType == Enum.UserInputType.MouseButton1 then
+                MouseMove:Disconnect()
+                MouseKill:Disconnect()
+            end
+        end)
+    end)
   end
 
   function SectionTable:Label(Info)
