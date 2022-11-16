@@ -861,6 +861,7 @@ end)
             Name = "DropdownFrame",
             Size = UDim2.new(.6, 3, 0, 14),
             BackgroundColor3 = Colors.Secondary,
+            ClipsDescendants = true,
             ZIndex = DropIndex
         }, {
             Utilities:Create("UIStroke", {
@@ -893,6 +894,24 @@ end)
                 ZIndex = DropIndex
             }, {
                 Utilities:Create("UIListLayout")
+            }),
+            Utilities:Create("Frame", {
+                Name = "GradientHolder",
+                Size = UDim2.new(0, 20, 0, 14),
+                BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+                Position = UDim2.new(1, -41, 0, 0),
+                ZIndex = DropIndex
+            }, {
+                Utilities:Create("UIGradient", {
+                    Color = ColorSequence.new({
+                        ColorSequenceKeypoint.new(0, Colors.Secondary),
+                        ColorSequenceKeypoint.new(1, Colors.Secondary),
+                    }),
+                    Transparency = NumberSequence.new({
+                        NumberSequenceKeypoint.new(0, 1),
+                        NumberSequenceKeypoint.new(1, 0),
+                    })
+                })
             }),
             Utilities:Create("Frame", {
                 Name = "DropdownImageContainer",
@@ -981,8 +1000,21 @@ end)
                 end
             end
             task.spawn(Info.Callback, MultiTable)
+
+            if Info.ChangeText then
+                Dropdown.DropdownFrame.DropdownText.Text = ""
+                for i, z in pairs(MultiTable) do
+                    Dropdown.DropdownFrame.DropdownText.Text ..= i ~= #MultiTable and z..", " or z
+                end
+                if string.len(Dropdown.DropdownFrame.DropdownText.Text) == 0 then
+                    Dropdown.DropdownFrame.DropdownText.Text = Info.Text
+                end
+            end
         else
             task.spawn(Info.Callback, v.DropdownElementText.Text)
+            if Info.ChangeText then
+                Dropdown.DropdownFrame.DropdownText.Text = v.DropdownElementText.Text
+            end
             DropdownTable:Toggle(false)
         end
     end
