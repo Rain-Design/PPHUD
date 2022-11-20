@@ -309,7 +309,7 @@ end
 
     coloredMessage = not coloredMessage
 
-    local currentDate = tostring(os.date("*t")["hour"]..":"..os.date("*t")["min"]..":"..os.date("*t")["sec"])
+    local currentDate = os.date("%X")
 
     local finalMessage = string.format("[%s] %s", currentDate, consoleArgs.Text)
 
