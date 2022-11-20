@@ -193,7 +193,7 @@ end
                     Name = "CloseConsole",
                     BackgroundTransparency = 1,
                     Text = "",
-                    Size = UDim2.new(1, 0, 0, 24),
+                    Size = UDim2.new(1, -10, 0, 24),
                     ZIndex = 11001
                 })
               })
