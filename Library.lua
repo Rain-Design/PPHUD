@@ -188,6 +188,14 @@ end
                   Font = Enum.Font.SourceSansBold,
                   TextColor3 = Colors.PrimaryText,
                   ZIndex = DropIndex + 5
+              }, {
+                Utilities:Create("TextButton", {
+                    Name = "CloseConsole",
+                    BackgroundTransparency = 1,
+                    Text = "",
+                    Size = UDim2.new(1, 0, 0, 24),
+                    ZIndex = 11001
+                })
               })
           }),
           Utilities:Create("Frame", {
@@ -218,6 +226,115 @@ end
           })
       })
   })
+
+  local Console = Utilities:Create("Frame", {
+    Name = "Console",
+    Size = UDim2.new(0, 500, 0, 300),
+    Parent = Window.Main,
+    AnchorPoint = Vector2.new(.5, .5),
+    Visible = false,
+    ZIndex = 11000,
+    Position = UDim2.fromScale(.5, .5),
+    BackgroundColor3 = Colors.Primary
+  }, {
+    Utilities:Create("UIStroke", {
+        Color = Colors.Divider
+    }),
+    Utilities:Create("ScrollingFrame", {
+        Name = "ConsoleContainer",
+        Size = UDim2.new(0, 500, 0, 276),
+        CanvasSize = UDim2.new(0, 0, 0, 0),
+        AutomaticCanvasSize = Enum.AutomaticSize.Y,
+        Position = UDim2.new(0, 0, 0, 24),
+        ScrollBarThickness = 0,
+        BackgroundTransparency = 1,
+        ZIndex = 11001
+    }, {
+        Utilities:Create("UIListLayout")
+    }),
+    Utilities:Create("Frame", {
+        Name = "ConsoleTopbar", 
+        AnchorPoint = Vector2.new(.5, 0),
+        Position = UDim2.new(.5, 0, 0, 0),
+        BackgroundColor3 = Colors.Secondary,
+        ZIndex = 11001,
+        Size = UDim2.new(1, 0, 0, 24)
+    }, {
+        Utilities:Create("TextLabel", {
+            Name = "ConsoleText",
+            Text = "Console",
+            Size = UDim2.new(1, -10, 0, 24),
+            BackgroundTransparency = 1,
+            Position = UDim2.new(0, 8, 0, 0),
+            TextXAlignment = Enum.TextXAlignment.Left,
+            TextSize = 13,
+            Font = Enum.Font.SourceSansBold,
+            TextColor3 = Colors.PrimaryText,
+            ZIndex = 11001
+        })
+    })
+  })
+
+  local consoleContainer = Console.ConsoleContainer
+
+  local scrollSize
+  consoleContainer.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    scrollSize = consoleContainer.UIListLayout.AbsoluteContentSize.Y
+
+    consoleContainer.CanvasPosition = Vector2.new(0, scrollSize)
+  end)
+
+  local bottomText = Window.Main.Bottom.BottomText
+
+  bottomText.MouseEnter:Connect(function()
+    Utilities:Tween(bottomText, .125, {TextColor3 = Colors.Accent})
+  end)
+
+  bottomText.MouseLeave:Connect(function()
+    Utilities:Tween(bottomText, .125, {TextColor3 = Colors.PrimaryText})
+  end)
+
+  bottomText.CloseConsole.MouseButton1Click:Connect(function()
+    WindowTable:ToggleConsole()
+  end)
+
+  function WindowTable:ToggleConsole()
+    Console.Visible = not Console.Visible
+  end
+
+  local coloredMessage = true
+  function WindowTable:Message(consoleArgs)
+    consoleArgs.Text = consoleArgs.Text or "Message"
+    consoleArgs.Color = consoleArgs.Color or Colors.PrimaryText
+
+    coloredMessage = not coloredMessage
+
+    local currentDate = tostring(os.date("*t")["hour"]..":"..os.date("*t")["min"]..":"..os.date("*t")["sec"])
+
+    local finalMessage = string.format("[%s] %s", currentDate, consoleArgs.Text)
+
+    local Message = Utilities:Create("Frame", {
+        Name = "ConsoleMessage",
+        BackgroundColor3 = Colors.Divider,
+        BackgroundTransparency = coloredMessage and 0 or 1,
+        Size = UDim2.new(0, 500, 0, 23),
+        ZIndex = 11002,
+        Parent = Console.ConsoleContainer
+    }, {
+        Utilities:Create("TextLabel", {
+            Name = "MessageText",
+            Text = finalMessage,
+            Size = UDim2.new(1, 0, 0, 23),
+            BackgroundTransparency = 1,
+            Position = UDim2.new(0, 3, 0, 0),
+            TextXAlignment = Enum.TextXAlignment.Left,
+            TextSize = 13,
+            Font = Enum.Font.SourceSansBold,
+            TextColor3 = consoleArgs.Color,
+            ZIndex = 11002
+        })
+    })
+  end
 
   if syn.protect_gui then
     syn.protect_gui(Window)
