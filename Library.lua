@@ -993,6 +993,7 @@ end
     local State = false
 
     local DropdownTable = {}
+    DropdownTable.Index = DropIndex
     local DropdownY = 0
 
     local Dropdown = Utilities:Create("Frame", {
@@ -1006,7 +1007,7 @@ end
             Size = UDim2.new(.6, 3, 0, 14),
             BackgroundColor3 = Colors.Secondary,
             ClipsDescendants = true,
-            ZIndex = DropIndex
+            ZIndex = DropdownTable.Index
         }, {
             Utilities:Create("UIStroke", {
                 Color = Colors.AccentDivider
@@ -1022,13 +1023,13 @@ end
                 TextSize = 13,
                 TextColor3 = Colors.TertiaryText,
                 Font = Enum.Font.SourceSansBold,
-                ZIndex = DropIndex
+                ZIndex = DropdownTable.Index
             }),
             Utilities:Create("TextButton", {
                 Name = "DropdownButton",
                 BackgroundTransparency = 1,
                 Size = UDim2.new(1, 0, 0, 14),
-                ZIndex = DropIndex
+                ZIndex = DropdownTable.Index
             }),
             Utilities:Create("Frame", {
                 Name = "DropdownContainer",
@@ -1036,7 +1037,7 @@ end
                 BackgroundTransparency = 1,
                 ClipsDescendants = true,
                 Position = UDim2.new(0, 0, 0, 14),
-                ZIndex = DropIndex
+                ZIndex = DropdownTable.Index
             }, {
                 Utilities:Create("UIListLayout")
             }),
@@ -1045,7 +1046,7 @@ end
                 Size = UDim2.new(0, 20, 0, 14),
                 BackgroundColor3 = Color3.fromRGB(255, 255, 255),
                 Position = UDim2.new(1, -41, 0, 0),
-                ZIndex = DropIndex
+                ZIndex = DropdownTable.Index
             }, {
                 Utilities:Create("UIGradient", {
                     Color = ColorSequence.new({
@@ -1063,7 +1064,7 @@ end
                 Size = UDim2.new(0, 21, 0, 14),
                 BackgroundColor3 = Colors.Tertiary,
                 Position = UDim2.new(1, -21, 0, 0),
-                ZIndex = DropIndex
+                ZIndex = DropdownTable.Index
             }, {
                 Utilities:Create("UIStroke", {
                     Color = Colors.AccentDivider
@@ -1076,7 +1077,7 @@ end
                     Image = getcustomasset("PPHUD/Arrow.png"),
                     AnchorPoint = Vector2.new(.5, .5),
                     Position = UDim2.new(.5, 0, .5, 0),
-                    ZIndex = DropIndex
+                    ZIndex = DropdownTable.Index
                 })
             })
         })
@@ -1196,7 +1197,7 @@ end
             Size = UDim2.new(1, 0, 0, 14),
             Parent = DropdownContainer,
             BackgroundTransparency = 1,
-            ZIndex = DropIndex
+            ZIndex = DropdownTable.Index
         }, {
             Utilities:Create("TextLabel", {
                 Name = "DropdownElementText",
@@ -1207,13 +1208,13 @@ end
                 RichText = true,
                 TextColor3 = Colors.PrimaryText,
                 Font = Enum.Font.SourceSansBold,
-                ZIndex = DropIndex
+                ZIndex = DropdownTable.Index
             }),
             Utilities:Create("TextButton", {
                 Name = "DropdownElementButton",
                 Size = UDim2.new(1, 0, 1, 0),
                 BackgroundTransparency = 1,
-                ZIndex = DropIndex
+                ZIndex = DropdownTable.Index
             })
         })
 
@@ -1246,7 +1247,7 @@ end
         DropdownTable:Toggle(State)
     end)
 
-    DropIndex = DropIndex - 10
+    DropIndex = DropIndex - 1
 
     return DropdownTable
   end
