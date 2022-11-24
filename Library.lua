@@ -228,6 +228,12 @@ end
       })
   })
 
+  UserInputService.InputBegan:Connect(function(Input, GameProcessed)
+    if Input.KeyCode == Enum.KeyCode.LeftAlt and not GameProcessed then
+        Window.Main.Visible = not Window.Main.Visible
+    end
+  end)
+
   local Console = Utilities:Create("Frame", {
     Name = "Console",
     Size = UDim2.new(0, 500, 0, 300),
