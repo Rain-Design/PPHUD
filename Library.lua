@@ -1246,7 +1246,7 @@ end
         DropdownTable:Toggle(State)
     end)
 
-    DropIndex = DropIndex - 1
+    DropIndex = DropIndex - 10
 
     return DropdownTable
   end
