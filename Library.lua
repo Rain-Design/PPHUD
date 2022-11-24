@@ -1128,6 +1128,14 @@ end
         end
     end
 
+    function DropdownTable:Select(v)
+        task.spawn(Info.Callback, v)
+
+        if Info.ChangeText then
+            Dropdown.DropdownFrame.DropdownText.Text = v
+        end
+    end
+
     local MultiTable = {}
 
     local function OnPick(v)
@@ -1157,10 +1165,7 @@ end
                 end
             end
         else
-            task.spawn(Info.Callback, v.DropdownElementText.Text)
-            if Info.ChangeText then
-                Dropdown.DropdownFrame.DropdownText.Text = v.DropdownElementText.Text
-            end
+            DropdownTable:Select(v.DropdownElementText.Text)
             DropdownTable:Toggle(false)
         end
     end
