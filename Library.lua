@@ -1169,7 +1169,7 @@ end
             if v.ClassName == "Frame" then
                 v:Destroy()
                 DropdownY = DropdownY - 14
-                
+
                 if State then
                     DropdownContainer.Size = DropdownContainer.Size - UDim2.fromOffset(0, 14)
                     Dropdown.DropdownFrame.Size = Dropdown.DropdownFrame.Size - UDim2.fromOffset(0, 14)
@@ -1178,6 +1178,7 @@ end
         end
 
         for _, v in pairs(table) do
+            warn("Set", v)
             DropdownTable:Add(v)
         end
     end
